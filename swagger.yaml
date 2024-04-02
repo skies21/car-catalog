@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: Car Catalog API
+  version: 0.1.0
+paths:
+  /cars:
+    get:
+      summary: Get all cars
+      responses:
+        '200':
+          description: A list of cars
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+      parameters:
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          description: Max number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+  /cars/{id}:
+    get:
+      summary: Get car by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the car to get
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A car object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '404':
+          description: Car not found
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Car:
+      type: object
+      required:
+        - regNum
+        - mark
+        - model
+        - year
+        - owner
+      properties:
+        regNum:
+          type: string
+          example: "X123XX150"
+        mark:
+          type: string
+          example: "Lada"
+        model:
+          type: string
+          example: "Vesta"
+        year:
+          type: integer
+          example: 2002
+        owner:
+          $ref: '#/components/schemas/People'
+    People:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John"
+        surname:
+          type: string
+          example: "Doe"
+        patronymic:
+          type: string
+          example: "Smith"
