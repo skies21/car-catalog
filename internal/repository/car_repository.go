@@ -22,7 +22,7 @@ func NewCarRepository(db *sql.DB) CarRepository {
 }
 
 func (c carRepository) GetAllCars() ([]model.Car, error) {
-	query := "SELECT reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic from cars"
+	query := "SELECT id, reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic from cars"
 
 	rows, err := c.db.Query(query)
 	if err != nil {
@@ -34,7 +34,7 @@ func (c carRepository) GetAllCars() ([]model.Car, error) {
 	for rows.Next() {
 		var car model.Car
 
-		err = rows.Scan(&car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
+		err = rows.Scan(&car.Id, &car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
 		if err != nil {
 			return []model.Car{}, err
 		}
@@ -45,13 +45,13 @@ func (c carRepository) GetAllCars() ([]model.Car, error) {
 }
 
 func (c carRepository) GetCarByID(id string) (model.Car, error) {
-	query := "SELECT reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic FROM cars WHERE id = $1"
+	query := "SELECT id, reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic FROM cars WHERE id = $1"
 
 	row := c.db.QueryRow(query, id)
 
 	var car model.Car
 
-	err := row.Scan(&car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
+	err := row.Scan(&car.Id, &car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
 	if err != nil {
 		return model.Car{}, err
 	}
