@@ -60,8 +60,14 @@ func (c carRepository) GetCarByID(id string) (model.Car, error) {
 }
 
 func (c carRepository) DeleteCarByID(id string) error {
-	//TODO implement me
-	panic("implement me")
+	var exists bool
+	err := c.db.QueryRow("SELECT EXISTS (SELECT 1 FROM cars WHERE id = $1)", id).Scan(&exists)
+	if err != nil || !exists {
+		return err
+	}
+
+	_, err = c.db.Exec("DELETE FROM cars WHERE id = $1", id)
+	return err
 }
 
 func (c carRepository) UpdateCarByID(id string, updatedCar model.Car) error {

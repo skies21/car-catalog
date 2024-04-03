@@ -4,6 +4,7 @@ import (
 	"CatCatalog/internal/model"
 	"CatCatalog/internal/service"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -19,11 +20,32 @@ func NewCarHandler(service service.CarService) *CarHandler {
 func (h *CarHandler) StartServer(addr string) error {
 	r := mux.NewRouter()
 	r.HandleFunc("/cars", h.GetAllCars)
-	r.HandleFunc("/cars/{id}", h.GetCarByID)
-	r.HandleFunc("/cars-create", h.CreateCar)
+	r.HandleFunc("/cars/get/{id}", h.GetCarByID)
+	r.HandleFunc("/cars/create", h.CreateCar)
+	r.HandleFunc("/cars/delete/{id}", h.DeleteCarByID)
 	http.Handle("/", r)
 
 	return http.ListenAndServe(addr, nil)
+}
+
+func (h *CarHandler) DeleteCarByID(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		http.Error(w, "Отсутствует идентификатор автомобиля", http.StatusBadRequest)
+		return
+	}
+
+	err := h.service.DeleteCarByID(id)
+	if err != nil {
+		http.Error(w, "Ошибка при удалении автомобиля", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprintf(w, "Автомобиль успешно удалён")
+	if err != nil {
+		return
+	}
 }
 
 func (h *CarHandler) GetAllCars(w http.ResponseWriter, r *http.Request) {

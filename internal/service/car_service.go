@@ -40,8 +40,8 @@ func (c carService) GetCarByID(id string) (model.Car, error) {
 }
 
 func (c carService) DeleteCarByID(id string) error {
-	//TODO implement me
-	panic("implement me")
+	err := c.carRepo.DeleteCarByID(id)
+	return err
 }
 
 func (c carService) UpdateCarByID(id string, updatedCar model.Car) error {
