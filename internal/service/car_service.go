@@ -7,7 +7,7 @@ import (
 )
 
 type CarService interface {
-	GetAllCars(offset, limit int) ([]model.Car, error)
+	GetAllCars() ([]model.Car, error)
 	GetCarByID(id string) (model.Car, error)
 	DeleteCarByID(id string) error
 	UpdateCarByID(id string, updatedCar model.Car) error
@@ -22,9 +22,12 @@ func NewCarService(repo repository.CarRepository) CarService {
 	return &carService{carRepo: repo}
 }
 
-func (c carService) GetAllCars(offset, limit int) ([]model.Car, error) {
-	//TODO implement me
-	panic("implement me")
+func (c carService) GetAllCars() ([]model.Car, error) {
+	cars, err := c.carRepo.GetAllCars()
+	if err != nil {
+		return []model.Car{}, err
+	}
+	return cars, nil
 }
 
 func (c carService) GetCarByID(id string) (model.Car, error) {

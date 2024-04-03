@@ -6,7 +6,7 @@ import (
 )
 
 type CarRepository interface {
-	GetAllCars(offset, limit int) ([]model.Car, error)
+	GetAllCars() ([]model.Car, error)
 	GetCarByID(id string) (model.Car, error)
 	DeleteCarByID(id string) error
 	UpdateCarByID(id string, updatedCar model.Car) error
@@ -21,9 +21,27 @@ func NewCarRepository(db *sql.DB) CarRepository {
 	return &carRepository{db: db}
 }
 
-func (c carRepository) GetAllCars(offset, limit int) ([]model.Car, error) {
-	//TODO implement me
-	panic("implement me")
+func (c carRepository) GetAllCars() ([]model.Car, error) {
+	query := "SELECT reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic from cars"
+
+	rows, err := c.db.Query(query)
+	if err != nil {
+		return []model.Car{}, err
+	}
+
+	var cars []model.Car
+
+	for rows.Next() {
+		var car model.Car
+
+		err = rows.Scan(&car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
+		if err != nil {
+			return []model.Car{}, err
+		}
+		cars = append(cars, car)
+	}
+
+	return cars, nil
 }
 
 func (c carRepository) GetCarByID(id string) (model.Car, error) {
