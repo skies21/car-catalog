@@ -30,7 +30,7 @@ paths:
           schema:
             type: integer
             minimum: 1
-  /cars/{id}:
+  /cars/get/{id}:
     get:
       summary: Get car by ID
       parameters:
@@ -49,6 +49,62 @@ paths:
                 $ref: '#/components/schemas/Car'
         '404':
           description: Car not found
+        '500':
+          description: Internal server error
+  /cars/create:
+    post:
+      summary: Create a new car
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+      responses:
+        '201':
+          description: The car has been successfully created
+        '400':
+          description: Cannot read request body or invalid data
+        '500':
+          description: Internal server error
+  /cars/delete/{id}:
+    delete:
+      summary: Delete a car by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Car ID to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The car was successfully removed
+        '400':
+          description: Error when deleting a car
+        '500':
+          description: Internal server error
+  /cars/update/{id}:
+    put:
+      summary: Update car information by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Car ID to update information
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+      responses:
+        '200':
+          description: Car information has been successfully updated
+        '400':
+          description: Cannot read request body or invalid data
         '500':
           description: Internal server error
 components:
