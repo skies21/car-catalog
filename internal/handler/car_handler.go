@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 type CarHandler struct {
@@ -75,7 +76,20 @@ func (h *CarHandler) DeleteCarByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CarHandler) GetAllCars(w http.ResponseWriter, r *http.Request) {
-	cars, err := h.service.GetAllCars()
+	offset := 0
+	limit := 10 // by default
+	queryValues := r.URL.Query()
+	offsetStr := queryValues.Get("offset")
+	limitStr := queryValues.Get("limit")
+
+	if offsetStr != "" {
+		offset, _ = strconv.Atoi(offsetStr)
+	}
+	if limitStr != "" {
+		limit, _ = strconv.Atoi(limitStr)
+	}
+
+	cars, err := h.service.GetAllCars(offset, limit)
 	if err != nil {
 		http.Error(w, "Ошибка при получении информации об автомобилях", http.StatusInternalServerError)
 		return

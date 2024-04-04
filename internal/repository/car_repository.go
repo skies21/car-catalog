@@ -3,10 +3,11 @@ package repository
 import (
 	"CatCatalog/internal/model"
 	"database/sql"
+	"fmt"
 )
 
 type CarRepository interface {
-	GetAllCars() ([]model.Car, error)
+	GetAllCars(offset, limit int) ([]model.Car, error)
 	GetCarByID(id string) (model.Car, error)
 	DeleteCarByID(id string) error
 	CheckCarByID(id string) (bool, error)
@@ -22,12 +23,15 @@ func NewCarRepository(db *sql.DB) CarRepository {
 	return &carRepository{db: db}
 }
 
-func (c carRepository) GetAllCars() ([]model.Car, error) {
-	query := "SELECT id, reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic from cars"
+func (c carRepository) GetAllCars(offset, limit int) ([]model.Car, error) {
+	query := "SELECT id, reg_num, mark, model, year, owner_name, owner_surname, owner_patronymic FROM cars"
+
+	// Добавляем операторы OFFSET и LIMIT к запросу
+	query += fmt.Sprintf(" OFFSET %d LIMIT %d", offset, limit)
 
 	rows, err := c.db.Query(query)
 	if err != nil {
-		return []model.Car{}, err
+		return nil, err
 	}
 
 	var cars []model.Car
@@ -37,7 +41,7 @@ func (c carRepository) GetAllCars() ([]model.Car, error) {
 
 		err = rows.Scan(&car.Id, &car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
 		if err != nil {
-			return []model.Car{}, err
+			return nil, err
 		}
 		cars = append(cars, car)
 	}
