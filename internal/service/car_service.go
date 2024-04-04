@@ -45,8 +45,20 @@ func (c carService) DeleteCarByID(id string) error {
 }
 
 func (c carService) UpdateCarByID(id string, updatedCar model.Car) error {
-	//TODO implement me
-	panic("implement me")
+	exists, err := c.carRepo.CheckCarByID(id)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return errors.New("автомобиль с указанным ID не найден")
+	}
+
+	err = c.carRepo.UpdateCarByID(id, updatedCar)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c carService) CreateCar(car model.Car) error {

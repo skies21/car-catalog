@@ -9,6 +9,7 @@ type CarRepository interface {
 	GetAllCars() ([]model.Car, error)
 	GetCarByID(id string) (model.Car, error)
 	DeleteCarByID(id string) error
+	CheckCarByID(id string) (bool, error)
 	UpdateCarByID(id string, updatedCar model.Car) error
 	CreateCar(car model.Car) error
 }
@@ -70,9 +71,22 @@ func (c carRepository) DeleteCarByID(id string) error {
 	return err
 }
 
+func (c carRepository) CheckCarByID(id string) (bool, error) {
+	var exists bool
+	err := c.db.QueryRow("SELECT EXISTS (SELECT 1 FROM cars WHERE id = $1)", id).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
 func (c carRepository) UpdateCarByID(id string, updatedCar model.Car) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := c.db.Exec("UPDATE cars SET reg_num = $1, mark = $2, model = $3, year = $4, owner_name = $5, owner_surname = $6, owner_patronymic = $7 WHERE id = $8",
+		updatedCar.RegNum, updatedCar.Mark, updatedCar.Model, updatedCar.Year, updatedCar.Owner.Name, updatedCar.Owner.Surname, updatedCar.Owner.Patronymic, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c carRepository) CreateCar(car model.Car) error {

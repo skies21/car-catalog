@@ -23,9 +23,35 @@ func (h *CarHandler) StartServer(addr string) error {
 	r.HandleFunc("/cars/get/{id}", h.GetCarByID)
 	r.HandleFunc("/cars/create", h.CreateCar)
 	r.HandleFunc("/cars/delete/{id}", h.DeleteCarByID)
+	r.HandleFunc("/cars/update/{id}", h.UpdateCarByID)
 	http.Handle("/", r)
 
 	return http.ListenAndServe(addr, nil)
+}
+
+func (h *CarHandler) UpdateCarByID(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		http.Error(w, "Отсутствует идентификатор автомобиля", http.StatusBadRequest)
+		return
+	}
+
+	var updatedCar model.Car
+	if err := json.NewDecoder(r.Body).Decode(&updatedCar); err != nil {
+		http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.UpdateCarByID(id, updatedCar); err != nil {
+		http.Error(w, "Ошибка при обновлении информации об автомобиле", http.StatusBadRequest)
+		return
+	}
+
+	_, err := fmt.Fprintf(w, "Информация успешно обновлена")
+	if err != nil {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *CarHandler) DeleteCarByID(w http.ResponseWriter, r *http.Request) {
